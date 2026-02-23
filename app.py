@@ -297,12 +297,12 @@ with st.sidebar:
     binary_path = st.text_input(
         "Binary model (.keras / .h5)",
         value="binary_model_best.keras",
-        help="Path to your binary (normal vs intrusion) model file",
+        help="Path to the binary (normal vs intrusion) model file",
     )
     multi_path = st.text_input(
         "Multiclass model (.keras / .h5)",
         value="multiclass_model_best.keras",
-        help="Path to your multiclass (which intrusion type) model file",
+        help="Path to the multiclass (which intrusion type) model file",
     )
 
     load_btn = st.button("🔄 Load / Reload Models", use_container_width=True)
