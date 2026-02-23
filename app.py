@@ -292,7 +292,7 @@ def show_result(result: dict):
 with st.sidebar:
     st.markdown("## ⚙️ Model Configuration")
     st.markdown("---")
-    st.markdown("**Model file paths** (on your machine or GitHub release)")
+    st.markdown("**Model file paths**")
 
     binary_path = st.text_input(
         "Binary model (.keras / .h5)",
