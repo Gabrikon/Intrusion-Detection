@@ -45,19 +45,3 @@ The system is evaluated based on:
 * **Precision/Recall:** Tuned specifically to minimize "False Negatives" (missed intrusions).
 * **Confusion Matrix:** Analyzed to ensure the model distinguishes between high-energy mechanical sounds (e.g., Drilling vs. Jackhammers).
 * **Binary Thresholding:** Adjustable sensitivity in Stage 1 to adapt to different background noise environments.
-
----
-
-## 🛠️ Tech Stack
-* **Language:** Python 3.x
-* **Deep Learning:** TensorFlow / Keras
-* **Audio Processing:** Librosa
-* **Web App:** Streamlit
-* **Environment:** Google Colab / Jupyter
-
----
-
-## 💻 How to Use
-1. **Clone the repository:**
-   ```bash
-   git clone [https://github.com/yourusername/acoustic-intrusion-detection.git](https://github.com/yourusername/acoustic-intrusion-detection.git)
