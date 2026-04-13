@@ -11,7 +11,7 @@ warnings.filterwarnings("ignore")
 
 # ─── Page Config ────────────────────────────────────────────────────────────────
 st.set_page_config(
-    page_title="Intrusion Sound Detector",
+    page_title="Acoustic Intrusion Detection System",
     page_icon="🔊",
     layout="wide",
     initial_sidebar_state="expanded",
