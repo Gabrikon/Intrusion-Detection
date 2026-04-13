@@ -351,7 +351,7 @@ with st.sidebar:
 
 
 # ─── Main UI ──────────────────────────────────────────────────────────────────────
-st.markdown('<div class="main-title">🔊 Intrusion Sound Detector</div>', unsafe_allow_html=True)
+st.markdown('<div class="main-title">🔊 Acoustic Intrusion Detection System</div>', unsafe_allow_html=True)
 st.markdown(
     '<div class="subtitle">Hierarchical CNN — detects glass breaking, gun shots, drilling & jackhammer sounds</div>',
     unsafe_allow_html=True,
