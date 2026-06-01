@@ -1,7 +1,7 @@
 """Audio preprocessing + two-stage CNN inference for the intrusion detector.
 
 Stage 1 (binary): normal vs. intrusion.
-Stage 2 (multiclass): which intrusion type — only run when stage 1 fires.
+Stage 2 (multiclass): which intrusion type, only run when stage 1 fires.
 """
 import io
 import os
@@ -48,7 +48,7 @@ def models_available() -> bool:
 def load_models():
     """Lazily load and cache both Keras models."""
     if _models["binary"] is None or _models["multi"] is None:
-        import tensorflow.keras.models as km  # imported lazily — TF is heavy
+        import tensorflow.keras.models as km  # imported lazily (TF is heavy)
         _models["binary"] = km.load_model(BINARY_MODEL_PATH)
         _models["multi"] = km.load_model(MULTI_MODEL_PATH)
     return _models["binary"], _models["multi"]

@@ -21,19 +21,22 @@ themeBtn.addEventListener("click", () => {
 });
 
 /* ─── Tabs ──────────────────────────────────────────────────────────── */
-document.querySelectorAll(".tab").forEach((tab) => {
-  tab.addEventListener("click", () => {
-    document.querySelectorAll(".tab").forEach((t) => t.classList.remove("active"));
-    tab.classList.add("active");
-    const name = tab.dataset.tab;
-    document.querySelectorAll("[data-panel]").forEach((p) =>
-      p.classList.toggle("hidden", p.dataset.panel !== name)
-    );
-    // Detection log only makes sense for live monitoring.
-    $("#logWrap").classList.toggle("hidden", name !== "live");
-    if (name !== "live") stopLive();
-  });
-});
+function activateTab(name) {
+  document.querySelectorAll(".tab").forEach((t) => t.classList.toggle("active", t.dataset.tab === name));
+  document.querySelectorAll("[data-panel]").forEach((p) =>
+    p.classList.toggle("hidden", p.dataset.panel !== name)
+  );
+  // Detection log only makes sense for live monitoring.
+  $("#logWrap").classList.toggle("hidden", name !== "live");
+  if (name !== "live") stopLive();
+}
+document.querySelectorAll(".tab").forEach((tab) =>
+  tab.addEventListener("click", () => activateTab(tab.dataset.tab))
+);
+// Hero and navbar "launch" buttons jump into the detector on a chosen tab.
+document.querySelectorAll("[data-launch]").forEach((el) =>
+  el.addEventListener("click", () => activateTab(el.dataset.tab || "live"))
+);
 
 /* ─── Threshold ─────────────────────────────────────────────────────── */
 const threshSlider = $("#threshold");
@@ -282,7 +285,7 @@ recBtn.addEventListener("click", async () => {
     recEngine.stop(); recEngine = null;
     recBtn.classList.remove("recording");
     $("#recLabel").textContent = "Start recording";
-    if (samples.length < TARGET_RATE * 0.3) { toast("Recording too short — try again."); return; }
+    if (samples.length < TARGET_RATE * 0.3) { toast("Recording too short, try again."); return; }
     const url = URL.createObjectURL(encodeWav(samples, TARGET_RATE));
     const prev = $("#recPreview"); prev.src = url; prev.classList.remove("hidden");
     const btn = $("#analyzeRecBtn"); btn.classList.remove("hidden");
