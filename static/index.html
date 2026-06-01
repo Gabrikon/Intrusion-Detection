@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Acoustic Intrusion Detection</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/styles.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>" />
+</head>
+<body>
+  <div class="app">
+    <!-- Header -->
+    <header class="header">
+      <div class="brand">
+        <span class="brand-mark">🛡️</span>
+        <div>
+          <h1 class="brand-name">Acoustic Intrusion Detection</h1>
+          <p class="brand-sub">Two-stage CNN · glass · gunshots · drilling · jackhammer</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <span id="statusPill" class="pill pill-idle"><span class="pill-dot"></span><span id="statusText">Connecting…</span></span>
+        <button id="themeToggle" class="icon-btn" title="Toggle light / dark" aria-label="Toggle theme">
+          <span class="theme-icon">🌙</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Tabs -->
+    <nav class="tabs" role="tablist">
+      <button class="tab active" data-tab="live" role="tab">🛰️ Live monitor</button>
+      <button class="tab" data-tab="upload" role="tab">📁 Upload</button>
+      <button class="tab" data-tab="record" role="tab">🎙️ Record</button>
+    </nav>
+
+    <main class="layout">
+      <!-- Left: input panel -->
+      <section class="card panel-input">
+        <!-- LIVE -->
+        <div class="panel" data-panel="live">
+          <div class="panel-head">
+            <h2>Live monitor</h2>
+            <p class="muted">Continuously listens through your microphone and scans every 2&nbsp;seconds.</p>
+          </div>
+          <div class="meter" id="meter"><div class="meter-fill" id="meterFill"></div></div>
+          <canvas id="waveform" class="waveform" height="72"></canvas>
+          <button id="liveToggle" class="btn btn-primary btn-lg">
+            <span class="rec-dot"></span><span id="liveLabel">Start monitoring</span>
+          </button>
+          <p class="hint" id="liveHint">Microphone access is requested when you start.</p>
+        </div>
+
+        <!-- UPLOAD -->
+        <div class="panel hidden" data-panel="upload">
+          <div class="panel-head">
+            <h2>Upload audio</h2>
+            <p class="muted">WAV · MP3 · OGG · FLAC · M4A · AAC — scanned in 2-second windows.</p>
+          </div>
+          <label id="dropzone" class="dropzone" for="fileInput">
+            <div class="dz-icon">⬆</div>
+            <div class="dz-title">Drag &amp; drop audio here</div>
+            <div class="dz-sub">or <span class="link">browse files</span></div>
+            <input id="fileInput" type="file" accept="audio/*" hidden />
+          </label>
+          <audio id="filePreview" class="audio-preview hidden" controls></audio>
+          <button id="analyzeFileBtn" class="btn btn-primary hidden">🔍 Analyze audio</button>
+        </div>
+
+        <!-- RECORD -->
+        <div class="panel hidden" data-panel="record">
+          <div class="panel-head">
+            <h2>Record a clip</h2>
+            <p class="muted">Capture a short sound and analyze it as a single 2-second window.</p>
+          </div>
+          <canvas id="recWaveform" class="waveform" height="72"></canvas>
+          <button id="recToggle" class="btn btn-primary btn-lg">
+            <span class="rec-dot"></span><span id="recLabel">Start recording</span>
+          </button>
+          <audio id="recPreview" class="audio-preview hidden" controls></audio>
+          <button id="analyzeRecBtn" class="btn btn-primary hidden">🔍 Analyze recording</button>
+        </div>
+
+        <!-- Sensitivity (shared) -->
+        <div class="sensitivity">
+          <div class="sens-row">
+            <span>Sensitivity</span>
+            <span class="sens-val"><span id="threshVal">50</span>% threshold</span>
+          </div>
+          <input id="threshold" type="range" min="10" max="90" value="50" step="5" />
+          <p class="hint">Lower catches more (more false alarms) · higher is stricter.</p>
+        </div>
+      </section>
+
+      <!-- Right: result panel -->
+      <section class="card panel-result">
+        <div id="resultEmpty" class="result-empty">
+          <div class="gauge gauge-empty">
+            <svg viewBox="0 0 120 120"><circle class="gauge-track" cx="60" cy="60" r="52"></circle></svg>
+            <div class="gauge-center"><span class="gauge-pct">—</span></div>
+          </div>
+          <p class="muted">No analysis yet. Start the live monitor, upload a file, or record a clip.</p>
+        </div>
+
+        <div id="resultView" class="result-view hidden">
+          <div class="result-top">
+            <div class="gauge" id="gauge">
+              <svg viewBox="0 0 120 120">
+                <circle class="gauge-track" cx="60" cy="60" r="52"></circle>
+                <circle class="gauge-arc" id="gaugeArc" cx="60" cy="60" r="52"
+                        stroke-dasharray="326.7" stroke-dashoffset="326.7"
+                        transform="rotate(-90 60 60)"></circle>
+              </svg>
+              <div class="gauge-center">
+                <span class="gauge-pct" id="gaugePct">0%</span>
+                <span class="gauge-label">threat</span>
+              </div>
+            </div>
+            <div class="verdict">
+              <div class="verdict-kicker" id="verdictKicker">All clear</div>
+              <div class="verdict-main" id="verdictMain">Normal environment</div>
+              <div class="verdict-detail muted" id="verdictDetail"></div>
+            </div>
+          </div>
+
+          <div class="breakdown" id="breakdown">
+            <h3>Threat type breakdown</h3>
+            <div id="breakdownBars"></div>
+          </div>
+        </div>
+
+        <!-- Detection log (live) -->
+        <div class="log" id="logWrap">
+          <div class="log-head">
+            <h3>Detection log</h3>
+            <button id="clearLog" class="link-btn">Clear</button>
+          </div>
+          <ul id="log" class="log-list"></ul>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      Hierarchical CNN · binary gate + multiclass classifier · 16&nbsp;kHz · 128-band log-mel spectrograms
+    </footer>
+  </div>
+
+  <div id="toast" class="toast hidden"></div>
+  <script src="/app.js"></script>
+</body>
+</html>
