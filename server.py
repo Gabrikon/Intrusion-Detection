@@ -43,7 +43,7 @@ async def analyze_file(file: UploadFile = File(...), threshold: float = Form(inf
 
 @app.post("/api/analyze-pcm")
 async def analyze_pcm(request: Request, threshold: float = inference.DEFAULT_THRESHOLD):
-    """Body = raw little-endian float32 PCM, mono, already at 16 kHz. Used by live + record modes."""
+    """Body = raw little-endian float32 PCM, mono, already at the model rate. Used by live + record modes."""
     try:
         raw = await request.body()
         audio = np.frombuffer(raw, dtype="<f4").astype(np.float32)

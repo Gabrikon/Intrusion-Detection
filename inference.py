@@ -13,13 +13,13 @@ import numpy as np
 warnings.filterwarnings("ignore")
 
 # ─── Audio / model config ──────────────────────────────────────────────────
-SAMPLE_RATE = 16000
-DURATION = 2
-HOP_LENGTH = 340 * DURATION
-FMIN = 20
-FMAX = SAMPLE_RATE // 2
+# These MUST match the values the models were trained with (see app.ipynb):
+# sr=22050, 1-second windows, librosa default hop_length/n_fft/fmin,
+# n_mels=128, fmax=8000, and power_to_db(ref=np.max), padded to 48 frames.
+SAMPLE_RATE = 22050
+DURATION = 1
+FMAX = 8000
 N_MELS = 128
-N_FFT = N_MELS * 20
 SAMPLES = SAMPLE_RATE * DURATION
 SPEC_FRAMES = 48
 
@@ -57,11 +57,12 @@ def load_models():
 # ─── Feature extraction ─────────────────────────────────────────────────────
 def _melspectrogram(audio: np.ndarray) -> np.ndarray:
     import librosa
+    # Match training exactly: librosa defaults for hop_length/n_fft/fmin,
+    # and power_to_db normalized to the per-clip maximum (ref=np.max).
     spec = librosa.feature.melspectrogram(
-        y=audio, sr=SAMPLE_RATE, n_mels=N_MELS, hop_length=HOP_LENGTH,
-        n_fft=N_FFT, fmin=FMIN, fmax=FMAX,
+        y=audio, sr=SAMPLE_RATE, n_mels=N_MELS, fmax=FMAX,
     )
-    return librosa.power_to_db(spec)
+    return librosa.power_to_db(spec, ref=np.max)
 
 
 def _fit_frames(spec: np.ndarray) -> np.ndarray:

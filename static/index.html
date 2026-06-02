@@ -147,6 +147,15 @@
               </label>
               <audio id="filePreview" class="audio-preview hidden" controls></audio>
               <button id="analyzeFileBtn" class="btn btn-primary hidden">🔍 Analyze audio</button>
+
+              <div class="samples">
+                <p class="samples-title">No audio handy? Try a verified sample</p>
+                <div class="sample-row">
+                  <button class="sample-btn threat" data-sample="/samples/glass_breaking.wav">🪟 Glass breaking</button>
+                  <button class="sample-btn threat" data-sample="/samples/gun_shot.wav">🔫 Gunshot</button>
+                  <button class="sample-btn safe" data-sample="/samples/normal_rain.wav">✅ Normal ambience</button>
+                </div>
+              </div>
             </div>
 
             <div class="panel hidden" data-panel="record">
@@ -164,11 +173,15 @@
 
             <div class="sensitivity">
               <div class="sens-row">
-                <span>Sensitivity</span>
-                <span class="sens-val"><span id="threshVal">50</span>% threshold</span>
+                <span>Detection sensitivity</span>
+                <span class="sens-val"><span id="threshVal">50</span>% threshold · <span id="threshLevel">Balanced</span></span>
               </div>
-              <input id="threshold" type="range" min="10" max="90" value="50" step="5" />
-              <p class="hint">Lower catches more (more false alarms). Higher is stricter.</p>
+              <div class="sens-control">
+                <button type="button" id="threshDown" class="step-btn" aria-label="More sensitive">−</button>
+                <input id="threshold" type="range" min="10" max="90" value="50" step="5" />
+                <button type="button" id="threshUp" class="step-btn" aria-label="Less sensitive">+</button>
+              </div>
+              <p class="hint">Lower threshold catches more sounds (higher sensitivity, more false alarms). Higher is stricter.</p>
             </div>
           </section>
 

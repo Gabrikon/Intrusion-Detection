@@ -1,8 +1,8 @@
 "use strict";
 
 const $ = (s) => document.querySelector(s);
-const TARGET_RATE = 16000;
-const WINDOW_SAMPLES = TARGET_RATE * 2; // 2-second model window
+const TARGET_RATE = 22050;          // must match the model's training sample rate
+const WINDOW_SAMPLES = TARGET_RATE; // 1-second model window
 const CIRC = 2 * Math.PI * 52;
 
 /* ─── Theme ─────────────────────────────────────────────────────────── */
@@ -40,7 +40,23 @@ document.querySelectorAll("[data-launch]").forEach((el) =>
 
 /* ─── Threshold ─────────────────────────────────────────────────────── */
 const threshSlider = $("#threshold");
-threshSlider.addEventListener("input", () => ($("#threshVal").textContent = threshSlider.value));
+function syncThreshold() {
+  const v = parseInt(threshSlider.value, 10);
+  $("#threshVal").textContent = v;
+  $("#threshLevel").textContent = v <= 30 ? "Lenient" : v >= 70 ? "Strict" : "Balanced";
+}
+function stepThreshold(delta) {
+  const step = parseInt(threshSlider.step, 10) || 5;
+  const min = parseInt(threshSlider.min, 10);
+  const max = parseInt(threshSlider.max, 10);
+  const next = Math.min(max, Math.max(min, parseInt(threshSlider.value, 10) + delta * step));
+  threshSlider.value = next;
+  syncThreshold();
+}
+threshSlider.addEventListener("input", syncThreshold);
+$("#threshDown").addEventListener("click", () => stepThreshold(-1));
+$("#threshUp").addEventListener("click", () => stepThreshold(1));
+syncThreshold();
 const threshold = () => parseInt(threshSlider.value, 10) / 100;
 
 /* ─── Status / health ───────────────────────────────────────────────── */
@@ -348,6 +364,39 @@ $("#analyzeFileBtn").addEventListener("click", async () => {
   } catch (e) { toast(e.message); }
   btn.disabled = false; btn.textContent = "🔍 Analyze audio";
 });
+
+/* ─── Demo samples ──────────────────────────────────────────────────── */
+async function runSample(url, label) {
+  setStatus("pill-live", "Analyzing sample…");
+  try {
+    const buf = await (await fetch(url)).arrayBuffer();
+    const name = url.split("/").pop();
+    const file = new File([buf], name, { type: "audio/wav" });
+    const prev = $("#filePreview");
+    prev.src = URL.createObjectURL(file);
+    prev.classList.remove("hidden");
+    const fd = new FormData();
+    fd.append("file", file);
+    fd.append("threshold", threshold());
+    const res = await fetch("/api/analyze-file", { method: "POST", body: fd });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Analysis failed");
+    const detail = data.n_flagged
+      ? `Sample "${label}" flagged ${data.n_flagged} of ${data.n_windows} window(s).`
+      : `Sample "${label}" scanned ${data.n_windows} window(s), no threat.`;
+    renderResult(data, detail);
+  } catch (e) {
+    toast(e.message || "Could not load sample.");
+  } finally {
+    setStatus("pill-ok", "Models online");
+  }
+}
+document.querySelectorAll(".sample-btn").forEach((btn) =>
+  btn.addEventListener("click", () => {
+    activateTab("upload");
+    runSample(btn.dataset.sample, btn.textContent.trim());
+  })
+);
 
 // Default tab = live, so hide log only when away.
 $("#logWrap").classList.remove("hidden");
